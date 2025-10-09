@@ -1,4 +1,6 @@
 const axios = require('axios');
+// --- THIS LINE WAS MISSING. THIS IS THE FIX. ---
+const cache = require('./cacheService');
 
 /**
  * Searches for recent and relevant trending videos on YouTube by topic.
@@ -6,7 +8,16 @@ const axios = require('axios');
  * @returns {Promise<Array>} - A list of trend objects.
  */
 const searchYouTubeByTopic = async (topic) => {
+  // Caching Logic
+  const cacheKey = `youtube_trends_${topic.toLowerCase()}`;
+  const cachedData = cache.get(cacheKey);
+  if (cachedData) {
+    console.log(`Serving YouTube trends for "${topic}" from cache.`);
+    return cachedData;
+  }
+
   try {
+    console.log(`Fetching new YouTube trends for "${topic}" from API.`);
     const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
       params: {
         part: 'snippet',
@@ -24,10 +35,11 @@ const searchYouTubeByTopic = async (topic) => {
       platform: 'YouTube',
       industry: topic,
     }));
-
+    
+    cache.set(cacheKey, trends); // Save new data to cache
     return trends;
   } catch (error) {
-    console.error('Error fetching YouTube search results:', error.response ? error.response.data : error.message);
+    console.error('Error fetching YouTube search results:', error.response ? error.response.data.error : error.message);
     return [];
   }
 };
@@ -84,5 +96,4 @@ const getChannelVideos = async (username) => {
   }
 };
 
-// THIS IS THE FIX: We are now exporting BOTH functions correctly.
 module.exports = { searchYouTubeByTopic, getChannelVideos };

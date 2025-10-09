@@ -1,11 +1,8 @@
 const { TwitterApi } = require('twitter-api-v2');
-const NodeCache = require('node-cache');
+const cache = require('./cacheService'); // <-- Import the shared cache
 
-// Initialize a new cache. The stdTTL (standard time to live) is the cache duration in seconds.
-// 900 seconds = 15 minutes.
-const twitterCache = new NodeCache({ stdTTL: 900 });
+// REMOVE the old local cache initialization: const twitterCache = new NodeCache({ stdTTL: 900 });
 
-// Initialize the Twitter client
 const twitterClient = new TwitterApi(process.env.TWITTER_BEARER_TOKEN);
 const roClient = twitterClient.readOnly;
 
@@ -17,17 +14,13 @@ const roClient = twitterClient.readOnly;
 const searchTwitterByTopic = async (topic) => {
   if (!topic) return [];
 
-  // 1. Define a unique key for this topic in our cache
   const cacheKey = `twitter_trends_${topic.toLowerCase()}`;
-
-  // 2. Check if we have valid, non-expired data in the cache
-  const cachedData = twitterCache.get(cacheKey);
+  const cachedData = cache.get(cacheKey); // <-- Use the shared cache
   if (cachedData) {
     console.log(`Serving Twitter trends for "${topic}" from cache.`);
-    return cachedData; // Return the cached data immediately
+    return cachedData;
   }
 
-  // 3. If no data is in the cache, proceed to call the API
   console.log(`Fetching new Twitter trends for "${topic}" from API.`);
   try {
     const response = await roClient.v2.search(`${topic} -is:retweet lang:en`, {
@@ -43,14 +36,12 @@ const searchTwitterByTopic = async (topic) => {
       industry: topic,
     }));
     
-    // 4. Save the new data into the cache for next time
-    twitterCache.set(cacheKey, trends);
-    
+    cache.set(cacheKey, trends); // <-- Use the shared cache
     return trends;
 
   } catch (error) {
     console.error(`Error searching Twitter for topic "${topic}":`, error);
-    return []; // Return an empty array on error so the app doesn't crash
+    return [];
   }
 };
 

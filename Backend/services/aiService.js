@@ -1,15 +1,9 @@
-const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-/**
- * Generates a content strategy using Google's Gemini model.
- * @param {string} targetAudience - The target audience for the content.
- * @param {string} topic - The primary topic or industry (e.g., "skincare").
- * @param {string} goals - The main objectives (e.g., "engagement and UGC").
- * @returns {Promise<object>} - The AI-generated strategy plan.
- */
-const generateContentStrategy = async (targetAudience, topic, goals) => {
+// --- UPDATED: Function now accepts trendingKeywords ---
+const generateContentStrategy = async (targetAudience, topic, goals, trendingKeywords = []) => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash', // A fast and capable model
     generationConfig: {
@@ -17,7 +11,16 @@ const generateContentStrategy = async (targetAudience, topic, goals) => {
     },
   });
 
-  // A detailed prompt engineered for Gemini's JSON mode.
+  // --- NEW: Conditionally add a section for trends to the prompt ---
+  const trendsPromptSection = trendingKeywords.length > 0 
+    ? `
+    In addition, to make the strategy highly relevant, consider incorporating some of these currently trending topics and titles related to "${topic}":
+    - ${trendingKeywords.join('\n- ')}
+    It is not necessary to use all of them, but the plan should reflect these current interests where appropriate.
+    `
+    : '';
+
+  // --- UPDATED: The prompt now includes the new trends section ---
   const prompt = `
     You are an expert content strategist AI. Your task is to generate a complete 30-day content strategy plan based on the user's requirements.
 
@@ -25,7 +28,7 @@ const generateContentStrategy = async (targetAudience, topic, goals) => {
     - Target Audience: ${targetAudience}
     - Primary Topic/Industry: ${topic}
     - Core Goals: ${goals}
-
+    ${trendsPromptSection}
     Generate a content strategy. The output MUST be a valid JSON object with the exact structure I provide below. Do not add any extra text or markdown formatting.
 
     The JSON structure:
@@ -47,7 +50,7 @@ const generateContentStrategy = async (targetAudience, topic, goals) => {
     Instructions for the calendar:
     - Create a plan for a full 30 days.
     - Vary the content titles and formats to keep the audience engaged.
-    - Ensure the content ideas align with the target audience and goals.
+    - Ensure the content ideas align with the target audience, goals, and provided trends.
     `;
 
   try {
@@ -62,6 +65,48 @@ const generateContentStrategy = async (targetAudience, topic, goals) => {
   }
 };
 
+const analyzeCompetitorTopics = async (postTitles) => {
+  if (!postTitles || postTitles.length === 0) {
+    return { themes: [], summary: 'Not enough data to analyze.' };
+  }
+
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    generationConfig: {
+      responseMimeType: 'application/json',
+    },
+  });
+
+  const prompt = `
+    You are an expert YouTube content analyst. Based on the following list of recent video titles from a single channel, please perform an analysis.
+
+    Video Titles:
+    - ${postTitles.join('\n- ')}
+
+    Your Tasks:
+    1. Identify the top 3 to 5 recurring content pillars or themes.
+    2. Provide a concise, one-sentence summary of this channel's overall content strategy.
+
+    The output MUST be a valid JSON object with the exact structure below. Do not add any other text.
+    {
+      "themes": ["Theme 1", "Theme 2", "Theme 3"],
+      "summary": "This channel focuses on..."
+    }
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    return JSON.parse(response.text());
+  } catch (error) {
+    console.error('Error analyzing competitor topics with Gemini:', error);
+    // Return a default object on error so the main process doesn't fail
+    return { themes: [], summary: 'AI analysis failed.' };
+  }
+};
+
+// --- UPDATED: Make sure to export the new function ---
 module.exports = {
   generateContentStrategy,
+  analyzeCompetitorTopics, // Add this export
 };

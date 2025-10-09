@@ -1,5 +1,7 @@
 const Competitor = require('../models/Competitor');
 const { getChannelVideos } = require('../services/youtubeService');
+// --- NEW: Import the analyzer function ---
+const { analyzeCompetitorTopics } = require('../services/aiService');
 
 const addCompetitor = async (req, res) => {
   const { platform, handle } = req.body;
@@ -12,20 +14,24 @@ const addCompetitor = async (req, res) => {
   }
 
   try {
-    // Fetch initial data from the YouTube API
     const { channelId, channelTitle, recentPosts } = await getChannelVideos(handle);
 
-    // Check if a competitor with this channel ID already exists
     let competitor = await Competitor.findOne({ handle: channelId });
     if (competitor) {
       return res.status(400).json({ success: false, error: 'This competitor is already being tracked.' });
     }
 
+    // --- NEW: Analyze the topics before saving ---
+    const postTitles = recentPosts.map(post => post.title);
+    const analysis = await analyzeCompetitorTopics(postTitles);
+    console.log(`AI Analysis for ${channelTitle}:`, analysis);
+
     competitor = new Competitor({
-      name: channelTitle, // Use the official channel name from the API
+      name: channelTitle,
       platform,
-      handle: channelId, // Store the more reliable channel ID
+      handle: channelId,
       recentPosts,
+      topicAnalysis: analysis, // <-- Save the analysis results
       lastFetched: Date.now(),
     });
 

@@ -1,10 +1,15 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-
+const cache = require('./cacheService');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const getGeminiGeneratedTrends = async (topic) => {
   if (!topic) return [];
-
+  const cacheKey = `gemini_trends_${topic.toLowerCase()}`;
+  const cachedData = cache.get(cacheKey);
+  if (cachedData) {
+    console.log(`Serving Gemini trends for "${topic}" from cache.`);
+    return cachedData;
+  }
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash',
     generationConfig: {

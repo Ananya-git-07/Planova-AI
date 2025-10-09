@@ -5,7 +5,7 @@ const PostSchema = new mongoose.Schema({
   title: { type: String, required: true },
   link: { type: String, required: true },
   publishedAt: { type: Date, required: true },
-  format: { type: String, default: 'Video' }, // e.g., 'Video', 'Tweet', 'Article'
+  format: { type: String, default: 'Video' },
 });
 
 const CompetitorSchema = new mongoose.Schema({
@@ -19,7 +19,6 @@ const CompetitorSchema = new mongoose.Schema({
     required: true,
     enum: ['YouTube', 'Twitter', 'Blog'],
   },
-  // The unique identifier, like a YouTube Channel ID or Twitter username
   handle: {
     type: String,
     required: true,
@@ -29,6 +28,13 @@ const CompetitorSchema = new mongoose.Schema({
     type: Date,
   },
   recentPosts: [PostSchema],
+  
+  // --- NEW: Add this field to store the AI analysis ---
+  topicAnalysis: {
+    themes: { type: [String], default: [] },
+    summary: { type: String, default: '' },
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,

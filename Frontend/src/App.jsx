@@ -1,86 +1,60 @@
-import { 
-  BrowserRouter as Router, 
-  Routes, 
-  Route, 
-  Link, 
-  NavLink 
-} from 'react-router-dom';
-import DashboardPage from './pages/DashboardPage';
-import StrategyPage from './pages/StrategyPage';
-import CompetitorPage from './pages/CompetitorPage';
+import React, { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import Navbar from './components/Navbar'
+import Dashboard from './pages/Dashboard'
+import Analytics from './pages/Analytics'
+import Calendar from './pages/Calendar'
+import Competitors from './pages/Competitors'
+import Strategies from './pages/Strategies' // <-- Import the new page
+import { ThemeProvider } from './contexts/ThemeContext'
 
-const Header = () => {
-  const navLinkClass = ({ isActive }) => 
-    `px-2 py-1 transition-colors duration-200 ${
-      isActive 
-        ? 'text-blue-600 border-b-2 border-blue-600' 
-        : 'text-gray-500 hover:text-blue-600'
-    }`;
+const App = () => {
+  const [generatedStrategy, setGeneratedStrategy] = useState(null);
+  const [strategyStartDate, setStrategyStartDate] = useState(null);
+  const navigate = useNavigate();
+
+  const handleStrategyGenerated = (strategy) => {
+    setGeneratedStrategy(strategy);
+    setStrategyStartDate(new Date());
+    // Navigate to the newly created strategy's calendar view
+    navigate(`/calendar/${strategy._id}`);
+  };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-10">
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link 
-            to="/" 
-            className="text-xl font-bold text-blue-800"
-          >
-            AI Content Strategy
-          </Link>
+    <div className="min-h-screen flex flex-col font-roboto">
+      <Navbar />
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Dashboard onStrategyGenerated={handleStrategyGenerated} />} />
+          <Route path="/analytics" element={<Analytics />} />
           
-          <div className="flex space-x-4 sm:space-x-8">
-            <NavLink 
-              to="/" 
-              className={navLinkClass}
-            >
-              Dashboard
-            </NavLink>
-            
-            <NavLink 
-              to="/strategy" 
-              className={navLinkClass}
-            >
-              Strategy
-            </NavLink>
-            
-            <NavLink 
-              to="/competitors" 
-              className={navLinkClass}
-            >
-              Competitors
-            </NavLink>
-          </div>
-        </div>
-      </nav>
-    </header>
+          {/* NEW: Route for the list of strategies */}
+          <Route path="/strategies" element={<Strategies />} />
+          
+          {/* UPDATED: Calendar route is now dynamic */}
+          <Route path="/calendar/:strategyId" element={<Calendar />} />
+
+          <Route path="/competitors" element={<Competitors />} />
+        </Routes>
+      </div>
+      <footer className="bg-white border-t py-3 text-center text-sm text-gray-500">Built for AI Content Strategy • Connects to FastAPI endpoints</footer>
+    </div>
   );
 };
 
-function App() {
+// We need to wrap App in Router for navigate to work in the handler
+const AppWrapper = () => (
+  <Router>
+    <App />
+  </Router>
+);
+
+function RootApp() {
   return (
-    <Router>
-      <div className="min-h-screen">
-        <Header />
-        
-        <main className="container mx-auto p-4 sm:p-6 lg:p-8">
-          <Routes>
-            <Route 
-              path="/" 
-              element={<DashboardPage />} 
-            />
-            <Route 
-              path="/strategy" 
-              element={<StrategyPage />} 
-            />
-            <Route 
-              path="/competitors" 
-              element={<CompetitorPage />} 
-            />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <ThemeProvider>
+      <AppWrapper />
+    </ThemeProvider>
   );
 }
 
-export default App;
+export default RootApp;

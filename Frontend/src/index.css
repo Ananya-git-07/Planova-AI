@@ -1,34 +1,18 @@
-/* Import Tailwind's base styles, components, and utilities */
 @import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/*
-  This is your new "tailwind.config.js".
-  You can define custom theme values using CSS variables.
-*/
-@theme {
-  --color-brand-primary: #1e40af; /* A custom blue color */
-  
-  /* Example of extending a font family */
-  --font-sans: "Inter", system-ui, sans-serif;
+/* Custom global styles */
+html, body, #root {
+  height: 100%;
 }
-
-/* 
-  Example of a custom utility class using the new @utility directive.
-  This will work with all of Tailwind's variants like hover: or lg:.
-*/
-@utility visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-/* A few global styles for a cleaner look */
+/* Avoid using @apply for global body to prevent unknown utility errors in some PostCSS/Tailwind setups */
 body {
-  @apply bg-slate-50 text-slate-800 antialiased;
+  background-color: #f3f4f6; /* approximate of bg-gray-100 */
+  color: #1f2937; /* approximate of text-gray-800 */
+}
+.dark body {
+  background-color: #111827; /* dark bg */
+  color: #f9fafb; /* dark text */
 }
