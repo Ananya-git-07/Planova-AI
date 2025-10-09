@@ -6,8 +6,7 @@ const { searchTwitterByTopic } = require('../services/twitterService');
 const { getGeminiGeneratedTrends } = require('../services/geminiTrendsService');
 
 const generateStrategy = async (req, res) => {
-  // ... (keep the existing generateStrategy function exactly as it is)
-  const { targetAudience, topic, goals } = req.body;
+  const { targetAudience, topic, goals, startDate, endDate } = req.body;
 
   if (!targetAudience || !topic || !goals) {
     return res.status(400).json({
@@ -28,12 +27,21 @@ const generateStrategy = async (req, res) => {
     const trendingKeywords = trendSources.flat().map(trend => trend.keyword).slice(0, 10);
     console.log(`Found trending keywords:`, trendingKeywords);
 
-    const generatedPlan = await generateContentStrategy(targetAudience, topic, goals, trendingKeywords);
+    const generatedPlan = await generateContentStrategy(
+      targetAudience, 
+      topic, 
+      goals, 
+      trendingKeywords,
+      startDate,
+      endDate
+    );
 
     const newStrategy = new ContentStrategy({
       targetAudience,
       topic,
       goals,
+      startDate: startDate || new Date(), // Use provided start date or default to now
+      endDate: endDate || null,         // Use provided end date or null
       generatedPlan,
     });
 
@@ -46,10 +54,8 @@ const generateStrategy = async (req, res) => {
   }
 };
 
-// --- NEW: Function to get all saved strategies ---
 const getStrategies = async (req, res) => {
   try {
-    // Find all strategies and sort by the most recently created
     const strategies = await ContentStrategy.find().sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: strategies.length, data: strategies });
   } catch (error) {
@@ -58,7 +64,6 @@ const getStrategies = async (req, res) => {
   }
 };
 
-// --- NEW: Function to get a single strategy by its ID ---
 const getStrategyById = async (req, res) => {
   try {
     const strategy = await ContentStrategy.findById(req.params.id);
@@ -77,6 +82,6 @@ const getStrategyById = async (req, res) => {
 
 module.exports = {
   generateStrategy,
-  getStrategies,    // <-- Export the new function
-  getStrategyById,  // <-- Export the new function
+  getStrategies,
+  getStrategyById,
 };

@@ -10,8 +10,15 @@ const ContentStrategySchema = new mongoose.Schema({
     required: true,
   },
   goals: {
-    type: String, // e.g., "engagement and UGC"
+    type: String,
     required: true,
+  },
+  // --- NEW: Add fields to store the plan's date range ---
+  startDate: {
+    type: Date,
+  },
+  endDate: {
+    type: Date,
   },
   generatedPlan: {
     blogTitle: String,
