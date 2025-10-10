@@ -37,7 +37,6 @@ const App = () => {
           <Route path="/competitors" element={<Competitors />} />
         </Routes>
       </div>
-      <footer className="bg-white border-t py-3 text-center text-sm text-gray-500">Built for AI Content Strategy • Connects to FastAPI endpoints</footer>
     </div>
   );
 };
