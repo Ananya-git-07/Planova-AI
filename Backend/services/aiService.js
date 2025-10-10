@@ -13,7 +13,7 @@ const analyzeCompetitorTopics = async (postTitles) => {
   }
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.5-flash',
     generationConfig: {
       responseMimeType: 'application/json',
     },
@@ -59,7 +59,7 @@ const analyzeCompetitorTopics = async (postTitles) => {
  */
 const generateContentStrategy = async (targetAudience, topic, goals, trendingKeywords = [], startDate = null, endDate = null) => {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-2.5-flash',
     generationConfig: {
       responseMimeType: 'application/json',
     },
