@@ -14,10 +14,6 @@ This tool moves beyond simple content generation by building a complete strategi
 *   **🔐 User Authentication**: Secure user accounts with JWT authentication ensures that all strategies and competitor lists are private and accessible only to the logged-in user.
 *   **💡 Content Idea Bank**: A dedicated space to quickly brainstorm different types of content (blog titles, tweet hooks, video ideas) without generating a full strategy.
 
-## 🚀 Live Demo
-
-[Link to your deployed application] - *(Add your link here when you deploy it)*
-
 ## 🛠️ Technology Stack
 
 | Layer        | Technology                                                                                                  |
