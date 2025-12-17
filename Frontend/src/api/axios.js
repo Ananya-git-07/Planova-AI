@@ -1,9 +1,19 @@
 import axios from 'axios';
 
+// Construct API URL - VITE_API_URL from Render is just the hostname
+const getBaseURL = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+  if (!apiUrl) return 'http://localhost:5000/';
+  // If it already starts with http/https, use it as is
+  if (apiUrl.startsWith('http://') || apiUrl.startsWith('https://')) {
+    return apiUrl.endsWith('/') ? apiUrl : `${apiUrl}/`;
+  }
+  // Otherwise, it's just a hostname from Render, add https://
+  return `https://${apiUrl}/`;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL 
-    ? `https://${import.meta.env.VITE_API_URL}/` 
-    : 'http://localhost:5000/',
+  baseURL: getBaseURL(),
   headers: { 'Content-Type': 'application/json' },
   // Increased timeout for longer AI calls (2 minutes)
   timeout: 120000,
