@@ -22,10 +22,9 @@ const Navbar = () => {
   return (
     <header className="bg-[#1f2937] text-white shadow-lg font-roboto">
       <div className="container mx-auto flex items-center justify-between p-4">
-        
-        {/* --- 2. Replaced the <img> tag with a styled <div> for the text logo --- */}
         <Link to="/" className="flex items-center">
-          <div className="text-2xl font-bold text-white tracking-wider">Planova AI</div>
+          <img src="/logo.png" alt="Logo" className="h-[2.5rem] w-[2.5rem] mr-3" style={{ minWidth: '2.5rem', minHeight: '2.5rem' }} />
+          <div className="text-2xl font-bold text-white tracking-wider" style={{ fontSize: '2.5rem' }}>Planova AI</div>
         </Link>
 
         {/* Desktop Navigation */}

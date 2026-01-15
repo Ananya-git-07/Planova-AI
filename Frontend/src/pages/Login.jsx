@@ -32,9 +32,13 @@ const Login = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-700">
+        <div className="flex items-center justify-center mb-4">
+          <img src="/logo.png" alt="Logo" className="h-[2.5rem] w-[2.5rem] mr-3" style={{ minWidth: '2.5rem', minHeight: '2.5rem' }} />
+          <span className="text-2xl font-bold text-white" style={{ fontSize: '2.5rem' }}>Planova AI</span>
+        </div>
         <h2 className="text-3xl font-bold text-center text-white mb-2">Welcome Back!</h2>
         <p className="text-center text-gray-400 mb-6">Log in to access your AI strategist.</p>
-        
+
         {error && <div className="bg-red-500/20 text-red-300 p-3 rounded-lg mb-4 text-center">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-6">
